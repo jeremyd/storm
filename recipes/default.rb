@@ -35,17 +35,16 @@ node.set['storm']['install_dir'] = install_dir
 end
 
 #locate the nimbus for this storm cluster
-if node.recipes.include?("storm::nimbus")
-  nimbus_host = node
-else
-  nimbus_host = search(:node, "role:storm_nimbus AND role:#{node['storm']['cluster_role']} AND chef_environment:#{node.chef_environment}").first
-end
+node_name = node.name.split('-')[0..-2].join('-')
+# use this host's ip and id: {id => ip, ...}, add this node first
+nimbus_host = search(:node, "name:nimbus-#{node_name}-*")
 
 # search for zookeeper servers
-zookeeper_quorum = Array.new
-search(:node, "role:zookeeper AND chef_environment:#{node.chef_environment}").each do |n|
-	zookeeper_quorum << n[:fqdn]
-end
+#zookeeper_quorum = Array.new
+#search(:node, "role:zookeeper AND chef_environment:#{node.chef_environment}").each do |n|
+#	zookeeper_quorum << n[:fqdn]
+#end
+zookeeper_quorum = ["10.24.0.58","10.24.0.59","10.24.0.61"]
 
 # setup storm group
 group "storm"
